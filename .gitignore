@@ -28,3 +28,6 @@ ansible/inventory.yml
 # Local environment files
 .env
 .env.local
+
+# Local Python virtual environment
+.venv/

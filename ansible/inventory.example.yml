@@ -1,0 +1,28 @@
+---
+k3s_cluster:
+  children:
+    server:
+      hosts:
+        k8s-gitops-cp-01:
+          ansible_host: "<control-plane-01-host>"
+        k8s-gitops-cp-02:
+          ansible_host: "<control-plane-02-host>"
+        k8s-gitops-cp-03:
+          ansible_host: "<control-plane-03-host>"
+
+    agent:
+      hosts:
+        k8s-gitops-worker-01:
+          ansible_host: "<worker-01-host>"
+        k8s-gitops-worker-02:
+          ansible_host: "<worker-02-host>"
+
+  vars:
+    ansible_port: 22
+    ansible_user: "<admin-username>"
+    ansible_ssh_private_key_file: "~/.ssh/id_ed25519"
+    ansible_python_interpreter: /usr/bin/python3.12
+
+    k3s_version: v1.37.0+k3s1
+
+    api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_default_ipv4']['address'] }}"
