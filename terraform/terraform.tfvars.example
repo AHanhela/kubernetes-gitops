@@ -1,0 +1,16 @@
+subscription_id      = "<subscription-id>"
+resource_group_name  = "<resource-group-name>"
+lab_name             = "<dev-test-lab-name>"
+virtual_network_name = "<virtual-network-name>"
+subnet_name          = "<subnet-name>"
+
+admin_username      = "<admin-username>"
+ssh_public_key_path = "<path-to-public-key>"
+
+nodes = {
+  "k8s-gitops-cp-01"     = "<allowed-vm-size>"
+  "k8s-gitops-cp-02"     = "<allowed-vm-size>"
+  "k8s-gitops-cp-03"     = "<allowed-vm-size>"
+  "k8s-gitops-worker-01" = "<allowed-vm-size>"
+  "k8s-gitops-worker-02" = "<allowed-vm-size>"
+}
