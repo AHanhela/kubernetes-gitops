@@ -1,0 +1,30 @@
+# Terraform working directory
+.terraform/
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+
+# Local Terraform variables
+*.tfvars
+*.tfvars.json
+
+# Saved Terraform plans
+*.tfplan
+tfplan
+
+# Terraform crash logs
+crash.log
+crash.*.log
+
+# Terraform CLI configuration
+.terraformrc
+terraform.rc
+
+# Local Ansible inventory
+inventory.yml
+ansible/inventory.yml
+
+# Local environment files
+.env
+.env.local
