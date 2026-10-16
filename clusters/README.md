@@ -21,19 +21,19 @@ Changes to Flux-managed Kubernetes resources are committed to Git. Flux reads th
 
 `clusters/k3s-gitops/apps.yaml` defines the Flux `Kustomization/apps` resource. It reads `apps/monitoring` from the existing `GitRepository/flux-system`.
 
-`apps/monitoring/kustomization.yaml` currently applies only the `monitoring` namespace. Monitoring Helm releases will be added separately.
+`apps/monitoring` installs Prometheus and Grafana with Flux `HelmRepository` and `HelmRelease` resources.
 
-Podinfo remains managed by its own Flux Kustomization under `clusters/k3s-gitops`.
+## GitOps tests
 
-## Podinfo test
+Podinfo was used as a temporary test workload. On 16 October 2026:
 
-Podinfo is used only to verify the GitOps reconciliation path.
+- A Git change added `gitops-test: desired` through the Podinfo Flux Kustomization's `commonMetadata.annotations`. The `flux-system` reconciliation applied revision `bf670014`, and the Deployment annotation returned `desired`.
+- The Deployment annotation was changed directly in the cluster to `modified`, which was confirmed by reading it back.
+- `flux reconcile kustomization podinfo -n flux-system` restored the annotation to `desired`.
 
-`podinfo-source.yaml` defines the upstream Podinfo repository as a Flux `GitRepository`. `podinfo-kustomization.yaml` tells Flux to apply the upstream `kustomize` directory.
+The drift correction was triggered manually. This test does not measure the interval for unattended correction.
 
-The test added both resources to the `main` branch. Flux detected the new revision, fetched the Podinfo source and created the workload in the cluster. No `kubectl apply` command was used for the Podinfo workload.
-
-The `flux-system` and `podinfo` GitRepository and Kustomization resources reached the Ready state. Flux also created two Podinfo pods, and both reached the Running state.
+Podinfo was removed from the repository after these checks. Deletion of its cluster resources through Flux pruning is checked separately after reconciliation.
 
 ## Checks
 

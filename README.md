@@ -72,4 +72,4 @@ The directory READMEs contain the commands and local files needed for each step.
 
 Terraform created the five VMs without changing the existing DevTest Lab or its virtual network. Ansible then bootstrapped three K3s server nodes and two worker nodes, and all five nodes reached the Ready state.
 
-Flux was bootstrapped against the `main` branch. A Podinfo test workload was added to Git, and Flux created it in the cluster without a manual `kubectl apply`.
+Flux was bootstrapped against the `main` branch. Podinfo was used to verify Git-driven deployment and correction of a manual configuration change. The temporary test workload was then removed from the repository.
