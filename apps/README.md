@@ -12,6 +12,6 @@ Grafana uses the `monitoring/grafana-admin-credentials` Kubernetes Secret for it
 
 The age private key is **not in Git**. Flux requires a `sops-age` Secret in `flux-system`, with its age identity stored as `identity.agekey`. Recover or install this key separately before reconciling the application after rebuilding a cluster. Retain an independent secure backup of the private key.
 
-On 16 October 2026, Flux reconciled the SOPS change, `apps` and `flux-system` reported Ready, `kube-prometheus-stack` successfully upgraded, and Grafana's Deployment referenced `grafana-admin-credentials`. The browser login check after migration and private-key backup confirmation were still pending at this point.
+On 16 October 2026, Flux reconciled the SOPS change, `apps` and `flux-system` reported Ready, `kube-prometheus-stack` successfully upgraded, and Grafana's Deployment referenced `grafana-admin-credentials`. After the migration, browser login to Grafana succeeded using the password decrypted from the SOPS file. Independent private-key backup confirmation remains pending.
 
 Grafana stores its administrator password in its persistent database. Updating the Kubernetes Secret alone is not a tested password-rotation procedure.
