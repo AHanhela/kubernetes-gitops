@@ -19,11 +19,11 @@ Changes to Flux-managed Kubernetes resources are committed to Git. Flux reads th
 
 ## Applications
 
-`clusters/k3s-gitops/apps.yaml` defines the Flux `Kustomization/apps` resource. It reads the `apps/k3s-gitops` path from the existing `GitRepository/flux-system`.
+`clusters/k3s-gitops/apps.yaml` defines the Flux `Kustomization/apps` resource. It reads `apps/monitoring` from the existing `GitRepository/flux-system`.
 
-`apps/k3s-gitops/kustomization.yaml` lists the applications for this cluster. The monitoring directory currently creates only the `monitoring` namespace. Helm releases will be added separately.
+`apps/monitoring/kustomization.yaml` currently applies only the `monitoring` namespace. Monitoring Helm releases will be added separately.
 
-The existing Podinfo source and Kustomization stay under `clusters/k3s-gitops`. This change does not move or replace them.
+Podinfo remains managed by its own Flux Kustomization under `clusters/k3s-gitops`.
 
 ## Podinfo test
 

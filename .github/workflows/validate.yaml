@@ -38,6 +38,6 @@ jobs:
       - name: Build application manifests
         run: |
           flux build kustomization apps \
-            --path ./apps/k3s-gitops \
+            --path ./apps/monitoring \
             --kustomization-file ./clusters/k3s-gitops/apps.yaml \
             --dry-run

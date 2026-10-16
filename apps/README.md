@@ -1,7 +1,7 @@
 # Applications
 
-Flux reconciles `apps/k3s-gitops` through `clusters/k3s-gitops/apps.yaml`.
+Flux reads `apps/monitoring` through `clusters/k3s-gitops/apps.yaml`.
 
-The cluster entry point includes `apps/monitoring`, which creates the `monitoring` namespace. No Helm releases are defined yet.
+`apps/monitoring/kustomization.yaml` currently includes only the `monitoring` namespace. Helm releases will be added later.
 
-The Podinfo smoke test remains under `clusters/k3s-gitops`.
+Podinfo remains managed separately under `clusters/k3s-gitops`.
