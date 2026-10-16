@@ -5,3 +5,4 @@ resources:
   - helmrepository.yaml
   - helmrelease.yaml
   - grafana-admin.sops.yaml
+  - k3s-node-dashboard.yaml
