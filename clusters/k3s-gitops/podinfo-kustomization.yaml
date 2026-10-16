@@ -5,6 +5,9 @@ metadata:
   name: podinfo
   namespace: flux-system
 spec:
+  commonMetadata:
+    annotations:
+      gitops-test: desired
   interval: 30m0s
   path: ./kustomize
   prune: true
