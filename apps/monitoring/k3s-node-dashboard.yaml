@@ -53,7 +53,7 @@ data:
                 "type": "prometheus",
                 "uid": "prometheus"
               },
-              "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"false\"})",
+              "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
               "instant": true,
               "refId": "A"
             }
