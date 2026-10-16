@@ -31,3 +31,6 @@ ansible/inventory.yml
 
 # Local Python virtual environment
 .venv/
+
+# Local SOPS age private keys
+*.agekey
