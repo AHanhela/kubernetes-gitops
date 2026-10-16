@@ -47,6 +47,7 @@ Local credentials, Terraform state, local Terraform variables and the local Ansi
 ```text
 .
 ├── ansible/
+├── apps/
 ├── clusters/
 └── terraform/
 ```
@@ -56,6 +57,7 @@ Setup details are split by responsibility:
 - [Terraform](terraform/README.md)
 - [Ansible and K3s](ansible/README.md)
 - [Flux and GitOps](clusters/README.md)
+- [Applications](apps/README.md)
 
 ## Reproducing the implementation
 
