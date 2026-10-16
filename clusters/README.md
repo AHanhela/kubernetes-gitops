@@ -33,7 +33,7 @@ Podinfo was used as a temporary test workload. On 16 October 2026:
 
 The drift correction was triggered manually. This test does not measure the interval for unattended correction.
 
-Podinfo was removed from the repository after these checks. Deletion of its cluster resources through Flux pruning is checked separately after reconciliation.
+Podinfo was removed from Git in PR #5. After reconciling `flux-system` to revision `d94c39a`, the Podinfo Flux Kustomization and GitRepository were absent. The Podinfo Deployment, Service, and HPA were also absent without manual deletion. The `flux-system` and `apps` Kustomizations and the monitoring HelmRelease remained Ready.
 
 ## Checks
 
