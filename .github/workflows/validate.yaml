@@ -1,0 +1,43 @@
+name: Validate manifests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@dd233c4fadef306a62b7893204f8e3817fecc2b2 # v2.9.5
+        with:
+          version: v2.9.5
+      - name: Setup Flux Schema CLI
+        uses: fluxcd/flux-schema/actions/setup@5a0846e4358013c06804d249d659cbf3fae59292
+        with:
+          version: v0.16.0
+      - name: Validate cluster manifests
+        uses: fluxcd/flux-schema/actions/validate@5a0846e4358013c06804d249d659cbf3fae59292
+        with:
+          path: ./clusters
+      - name: Validate application manifests
+        uses: fluxcd/flux-schema/actions/validate@5a0846e4358013c06804d249d659cbf3fae59292
+        with:
+          path: ./apps
+      - name: Build application manifests
+        run: |
+          flux build kustomization apps \
+            --path ./apps/k3s-gitops \
+            --kustomization-file ./clusters/k3s-gitops/apps.yaml \
+            --dry-run
