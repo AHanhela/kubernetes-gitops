@@ -17,6 +17,14 @@ The bootstrap also created the `GitRepository` and `Kustomization` resources tha
 
 Changes to Flux-managed Kubernetes resources are committed to Git. Flux reads the new revision and reconciles the desired state to the cluster.
 
+## Applications
+
+`clusters/k3s-gitops/apps.yaml` defines the Flux `Kustomization/apps` resource. It reads the `apps/k3s-gitops` path from the existing `GitRepository/flux-system`.
+
+`apps/k3s-gitops/kustomization.yaml` lists the applications for this cluster. The monitoring directory currently creates only the `monitoring` namespace. Helm releases will be added separately.
+
+The existing Podinfo source and Kustomization stay under `clusters/k3s-gitops`. This change does not move or replace them.
+
 ## Podinfo test
 
 Podinfo is used only to verify the GitOps reconciliation path.
@@ -45,6 +53,13 @@ Check Kubernetes workloads:
 
 ```bash
 kubectl get pods -A
+```
+
+After the application path has reconciled:
+
+```bash
+flux get kustomizations -A
+kubectl get namespace monitoring
 ```
 
 Official references: [Flux documentation](https://fluxcd.io/flux/) and [GitHub bootstrap documentation](https://fluxcd.io/flux/installation/bootstrap/github/).
