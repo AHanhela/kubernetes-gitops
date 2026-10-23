@@ -1,65 +1,46 @@
 # Flux and GitOps
 
-Flux reconciles the Kubernetes configuration under `clusters/k3s-gitops` from the `main` branch.
+Flux reads Kubernetes configuration from the `main` branch of this repository and applies it to the K3s cluster.
 
 ## Bootstrap and reconciliation
 
-Flux `v2.9.5` was installed with `flux bootstrap github`. The command generated the files under `clusters/k3s-gitops/flux-system`.
+Flux `v2.9.5` was installed with `flux bootstrap github`. It generated the files under [`clusters/k3s-gitops/flux-system/`](k3s-gitops/flux-system/), including manifests for the source-controller, kustomize-controller, helm-controller and notification-controller. These generated files should not be edited by hand.
 
-Those manifests install the default Flux controllers:
+The GitOps configuration uses one Git source and two Flux Kustomizations:
 
-- source-controller
-- kustomize-controller
-- helm-controller
-- notification-controller
+- `GitRepository/flux-system` fetches the repository's `main` branch.
+- `Kustomization/flux-system` applies the configuration at `./clusters/k3s-gitops`, including the definition of the applications Kustomization.
+- `Kustomization/apps`, defined in [`apps.yaml`](k3s-gitops/apps.yaml), reads `./apps/monitoring` from the same Git source. It applies the monitoring resources and decrypts their SOPS-encrypted Secret using the separately installed `sops-age` key.
 
-The bootstrap also created the `GitRepository` and `Kustomization` resources that connect the cluster to this repository. Flux generated the files under `flux-system/`, so they should not be edited by hand.
+The `apps` Kustomization checks its desired state every two minutes. This setting is a reconciliation interval, not a guaranteed recovery time.
 
-Changes to Flux-managed Kubernetes resources are committed to Git. Flux reads the new revision and reconciles the desired state to the cluster.
-
-## Applications
-
-`clusters/k3s-gitops/apps.yaml` defines the Flux `Kustomization/apps` resource. It reads `apps/monitoring` from the existing `GitRepository/flux-system`.
-
-`apps/monitoring` installs Prometheus and Grafana with Flux `HelmRepository` and `HelmRelease` resources.
+The [monitoring configuration](../apps/README.md) uses Flux `HelmRepository` and `HelmRelease` resources to install Prometheus and Grafana. Its dashboard is stored in Git as a Kubernetes ConfigMap.
 
 ## GitOps tests
 
-Podinfo was used as a temporary test workload. On 16 October 2026:
+The monitoring dashboard was used for two controlled tests on 16 October 2026. Its Ready-node panel normally displayed five nodes.
 
-- A Git change added `gitops-test: desired` through the Podinfo Flux Kustomization's `commonMetadata.annotations`. The `flux-system` reconciliation applied revision `bf670014`, and the Deployment annotation returned `desired`.
-- The Deployment annotation was changed directly in the cluster to `modified`, which was confirmed by reading it back.
-- `flux reconcile kustomization podinfo -n flux-system` restored the annotation to `desired`.
+**Unattended configuration correction.** A direct `kubectl patch` changed the dashboard ConfigMap's query from counting Ready nodes to counting non-Ready nodes. Git was left unchanged, and Grafana displayed an incorrect zero in the Ready-node panel. Flux restored the query from Git without a manual `flux reconcile` command. A check running at five-second intervals detected restoration of the ConfigMap **105 seconds** after the patch. This was not a measurement of Grafana's browser refresh time or a guaranteed maximum recovery time.
 
-The drift correction was triggered manually. This test does not measure the interval for unattended correction.
+**Git-based configuration rollback.** The incorrect query was then committed to Git, applied by Flux and observed in Grafana. A `git revert` restored the previous query in the repository. Flux applied that restored configuration, and Grafana displayed five Ready nodes again. This tested rollback of one dashboard query, not a Helm chart or application version.
 
-Podinfo was removed from Git in PR #5. After reconciling `flux-system` to revision `d94c39a`, the Podinfo Flux Kustomization and GitRepository were absent. The Podinfo Deployment, Service, and HPA were also absent without manual deletion. The `flux-system` and `apps` Kustomizations and the monitoring HelmRelease remained Ready.
+An earlier smoke test used the temporary Podinfo workload. Git-driven deployment worked, and a manually invoked `flux reconcile` restored a changed annotation. Removing the workload from Git also removed its managed Kubernetes resources. That test did not demonstrate unattended drift correction; Podinfo was removed after testing.
 
 ## Checks
 
-Check the Flux installation:
+Check the Flux installation and resources:
 
 ```bash
 flux check
-```
-
-Check Flux sources and Kustomizations:
-
-```bash
 flux get all -A
 ```
 
-Check Kubernetes workloads:
-
-```bash
-kubectl get pods -A
-```
-
-After the application path has reconciled:
+Check the Kustomizations and monitoring namespace:
 
 ```bash
 flux get kustomizations -A
 kubectl get namespace monitoring
+kubectl get pods -A
 ```
 
 Official references: [Flux documentation](https://fluxcd.io/flux/) and [GitHub bootstrap documentation](https://fluxcd.io/flux/installation/bootstrap/github/).
