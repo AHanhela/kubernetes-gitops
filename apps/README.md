@@ -1,17 +1,29 @@
-# Applications
+# Monitoring application
 
-Flux reconciles `apps/monitoring` through `clusters/k3s-gitops/apps.yaml`.
+Flux applies `apps/monitoring` through [`Kustomization/apps`](../clusters/k3s-gitops/apps.yaml). The [`HelmRepository`](monitoring/helmrepository.yaml) and [`HelmRelease`](monitoring/helmrelease.yaml) resources install the upstream `kube-prometheus-stack` chart, version `92.10.0`.
 
-`apps/monitoring` installs the upstream `kube-prometheus-stack` Helm chart with Prometheus, Grafana, kube-state-metrics, and node-exporter. The chart version is pinned in `helmrelease.yaml`.
+## Metrics and dashboard
 
-The installation uses the K3s `local-path` storage class. Grafana has no public Ingress and can be accessed through `kubectl port-forward`. Loki is not installed.
+The stack includes Prometheus, Grafana, kube-state-metrics and node-exporter. Prometheus collects metrics from the K3s cluster and its nodes. Grafana visualizes them using the [`k3s-nodes-dashboard` ConfigMap](monitoring/k3s-node-dashboard.yaml), which defines panels for the number of Ready nodes and CPU and memory use per node.
+
+The tested dashboard showed five Ready nodes and separate CPU and memory data for all five nodes. The Grafana and Prometheus workloads started, and their persistent volume claims were Bound.
+
+Grafana uses a 1 GiB volume and Prometheus uses a 4 GiB volume with the K3s `local-path` storage class. Prometheus retention is set to two days. Alertmanager is disabled, Loki is not installed, and no public Ingress is configured for Grafana. Grafana can be accessed using `kubectl port-forward`.
 
 ## Grafana credentials
 
-Grafana uses the `monitoring/grafana-admin-credentials` Kubernetes Secret for its administrator credentials. The Secret is committed as `grafana-admin.sops.yaml` with its data encrypted using SOPS and age. Flux decrypts it through the `apps` Kustomization before the HelmRelease uses it.
+Grafana reads its administrator credentials from the `monitoring/grafana-admin-credentials` Kubernetes Secret. The [`grafana-admin.sops.yaml`](monitoring/grafana-admin.sops.yaml) file stores the Secret with its data encrypted using SOPS and age. Flux decrypts it when applying the `apps` Kustomization, and the HelmRelease references the resulting Secret.
 
-The age private key is **not in Git**. Flux requires a `sops-age` Secret in `flux-system`, with its age identity stored as `identity.agekey`. Recover or install this key separately before reconciling the application after rebuilding a cluster. Retain an independent secure backup of the private key.
+The age private key is **not stored in Git**. Flux requires a `sops-age` Secret in the `flux-system` namespace with the private key under `identity.agekey`. This key must be supplied separately when rebuilding the cluster; the encrypted Secret cannot be recovered from the repository alone. Keep an independent secure backup of the key.
 
-On 16 October 2026, Flux reconciled the SOPS change, `apps` and `flux-system` reported Ready, `kube-prometheus-stack` successfully upgraded, and Grafana's Deployment referenced `grafana-admin-credentials`. After the migration, browser login to Grafana succeeded using the password decrypted from the SOPS file. The operator also confirmed a secure independent backup of the age private key. This completes the SOPS credential-migration acceptance; Grafana password rotation was not tested.
+On 16 October 2026, Flux reconciled the SOPS change, the monitoring HelmRelease upgraded successfully and Grafana's Deployment referenced the credential Secret. A browser login using the decrypted credentials succeeded. This verified the credential migration, not password rotation. Grafana also stores administrator credentials in its persistent database, so updating the Kubernetes Secret alone is not a validated password-rotation method.
 
-Grafana stores its administrator password in its persistent database. Updating the Kubernetes Secret alone is not a tested password-rotation procedure.
+The [GitOps test record](../clusters/README.md#gitops-tests) describes the dashboard configuration correction and Git revert tests.
+
+## Checks
+
+```bash
+flux get helmreleases -n monitoring
+kubectl -n monitoring get pods
+kubectl -n monitoring get configmap k3s-nodes-dashboard
+```
