@@ -6,6 +6,21 @@ Flux reads Kubernetes configuration from the `main` branch of this repository an
 
 Flux `v2.9.5` was installed with `flux bootstrap github`. It generated the files under [`clusters/k3s-gitops/flux-system/`](k3s-gitops/flux-system/), including manifests for the source-controller, kustomize-controller, helm-controller and notification-controller. These generated files should not be edited by hand.
 
+To bootstrap a separate copy of this repository under a personal GitHub account, first configure cluster-admin access to the intended K3s cluster and a GitHub token with permission to manage that repository. Then run:
+
+```bash
+flux check --pre
+flux bootstrap github \
+  --owner=<your-github-username> \
+  --repository=<your-repository-name> \
+  --branch=main \
+  --path=./clusters/k3s-gitops \
+  --personal \
+  --private=false
+```
+
+This runs against your copy, updates its generated Flux manifests and configures repository access. Do not bootstrap a test cluster against the original thesis repository. See the [official GitHub bootstrap instructions](https://fluxcd.io/flux/installation/bootstrap/github/) for token permissions and organization repositories.
+
 The GitOps configuration uses one Git source and two Flux Kustomizations:
 
 - `GitRepository/flux-system` fetches the repository's `main` branch.

@@ -19,7 +19,7 @@ Git ignores the local `terraform.tfvars`, Terraform state and the `.terraform/` 
 
 ## Usage
 
-Create the local variable file:
+Run these commands from the repository root. Create the local variable file:
 
 ```bash
 cp terraform/terraform.tfvars.example terraform/terraform.tfvars
