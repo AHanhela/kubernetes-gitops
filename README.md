@@ -33,13 +33,15 @@ The implementation uses Terraform 1.16, AzureRM provider 5.7.0, Ubuntu Server 24
 
 ## Reproducing the implementation
 
+This is the configuration used for the thesis, not a ready-to-run deployment for other Azure accounts. Run commands from the repository root. To use it in another GitHub account, make a copy of the repository and bootstrap Flux against that copy; the generated Git source currently points to `AHanhela/kubernetes-gitops`.
+
 1. Use an existing Azure DevTest Lab and virtual network. Create the local Terraform variables from `terraform/terraform.tfvars.example` and provision the VMs.
 2. Create the local Ansible inventory from `ansible/inventory.example.yml` and install K3s.
 3. Bootstrap Flux against the chosen Git repository and configure it to reconcile the cluster manifests.
-4. Supply the SOPS age private key to Flux through the `flux-system/sops-age` Secret, then let the `apps` Kustomization apply the monitoring configuration.
+4. Supply the matching SOPS age private key to Flux through the `flux-system/sops-age` Secret. To use your own key, re-encrypt the Grafana Secret for your own age recipient before deploying the monitoring configuration.
 5. Verify the cluster, Flux resources and monitoring application using the checks in the directory READMEs.
 
-The directory READMEs provide the commands and file paths. Credentials, Terraform state, local variables, the Ansible inventory and the age private key are not stored in Git. Reproducing the deployment requires access to the Azure prerequisites and suitable credentials. The encrypted Grafana Secret cannot be decrypted from the repository alone.
+The directory READMEs provide the commands and file paths. Credentials, Terraform state, local variables, the Ansible inventory and the age private key are not stored in Git. Reproducing the deployment requires access to the Azure prerequisites and suitable credentials. The encrypted Grafana Secret cannot be decrypted using a newly generated age key.
 
 ## Tested results
 
