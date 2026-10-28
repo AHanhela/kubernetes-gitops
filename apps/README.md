@@ -16,6 +16,8 @@ Grafana reads its administrator credentials from the `monitoring/grafana-admin-c
 
 The age private key is **not stored in Git**. Flux requires a `sops-age` Secret in the `flux-system` namespace with the private key under `identity.agekey`. This key must be supplied separately when rebuilding the cluster; the encrypted Secret cannot be recovered from the repository alone. Keep an independent secure backup of the key.
 
+The committed `grafana-admin.sops.yaml` is encrypted for the age recipient used in the thesis environment. A new age key **cannot decrypt this file**. For a separate deployment, create your own age key, generate a Secret named `grafana-admin-credentials` with the `admin-user` and `admin-password` keys, encrypt its `data` or `stringData` with SOPS for your recipient, and replace the encrypted manifest in your own repository. Store the private key securely and install it in Flux as `flux-system/sops-age` before expecting the `apps` Kustomization to reconcile. Never commit the plaintext credentials. The [Flux SOPS guide](https://fluxcd.io/flux/guides/mozilla-sops/) shows the age encryption and key installation steps.
+
 On 16 October 2026, Flux reconciled the SOPS change, the monitoring HelmRelease upgraded successfully and Grafana's Deployment referenced the credential Secret. A browser login using the decrypted credentials succeeded. This verified the credential migration, not password rotation. Grafana also stores administrator credentials in its persistent database, so updating the Kubernetes Secret alone is not a validated password-rotation method.
 
 The [GitOps test record](../clusters/README.md#gitops-tests) describes the dashboard configuration correction and Git revert tests.
